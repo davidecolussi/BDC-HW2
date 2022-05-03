@@ -1,18 +1,12 @@
 
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import scala.Tuple2;
 import java.io.IOException;
-import java.util.*;
 
-public class G074HW1{
+public class G074HW2 {
 
     public static void main(String[] args) throws IOException {
 
-        
 
+        System.out.println("hello world");
 
         /* ***** HOMEWORK 1 OLD *******
         if (args.length != 4) { // Checking the number of the parameters
