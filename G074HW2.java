@@ -35,12 +35,24 @@ public class G074HW2 {
         return result;
     }
 
+    public  static ArrayList<Vector> SeqWeightedOutliers(ArrayList<Vector> P, ArrayList<Vector> W, int k, int z, int alpha) {
+        return null;
+    }
+
+    public static int ComputeObjective(ArrayList<Vector> P, ArrayList<Vector> S, int z) {
+        return 0;
+    }
+
     public static void main(String[] args) throws IOException {
 
         ArrayList<Vector> inputPoints = readVectorsSeq(args[0]); //File reading
         int k = Integer.parseInt(args[1]); //Number of centers
         int z = Integer.parseInt(args[2]); //Number of allowed outliers
 
-    }
+        ArrayList<Long> weights = new ArrayList<Long>();;
+        for(int i = 0; i<inputPoints.size(); i++) {
+            weights.add(1L);
+        }
 
+    }
 }
