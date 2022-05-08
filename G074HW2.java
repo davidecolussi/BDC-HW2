@@ -54,8 +54,21 @@ public class G074HW2 {
             weights.add(1L);
         }
 
+        long startTime = System.currentTimeMillis();
         ArrayList<Vector> solution = SeqWeightedOutliers(inputPoints,weights,k,z,0);
+        long execTime = System.currentTimeMillis() - startTime;
+
         double objective = ComputeObjective(inputPoints,solution,z);
+
+        //Output printing
+        System.out.println("Input size n = " + inputPoints.size());
+        System.out.println("Number of centers k = " + k);
+        System.out.println("Number of outliers z = " + z);
+        System.out.println("Initial guess = ");
+        System.out.println("Final guess = ");
+        System.out.println("Number of guesses = ");
+        System.out.println("Objective function = " + objective);
+        System.out.println("Time of SeqWeightedOutliers = " + execTime);
 
     }
 }
