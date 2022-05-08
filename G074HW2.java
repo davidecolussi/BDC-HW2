@@ -35,11 +35,11 @@ public class G074HW2 {
         return result;
     }
 
-    public  static ArrayList<Vector> SeqWeightedOutliers(ArrayList<Vector> P, ArrayList<Vector> W, int k, int z, int alpha) {
+    public  static ArrayList<Vector> SeqWeightedOutliers(ArrayList<Vector> P, ArrayList<Long> W, int k, int z, int alpha) {
         return null;
     }
 
-    public static int ComputeObjective(ArrayList<Vector> P, ArrayList<Vector> S, int z) {
+    public static double ComputeObjective(ArrayList<Vector> P, ArrayList<Vector> S, int z) {
         return 0;
     }
 
@@ -53,6 +53,9 @@ public class G074HW2 {
         for(int i = 0; i<inputPoints.size(); i++) {
             weights.add(1L);
         }
+
+        ArrayList<Vector> solution = SeqWeightedOutliers(inputPoints,weights,k,z,0);
+        double objective = ComputeObjective(inputPoints,solution,z);
 
     }
 }
