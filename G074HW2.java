@@ -135,7 +135,7 @@ public class G074HW2 {
         }
 
         long startTime = System.currentTimeMillis();
-        ArrayList<Vector> solution = SeqWeightedOutliers(inputPoints,weights,k,z,0); //todo
+        ArrayList<Vector> solution = SeqWeightedOutliers(inputPoints,weights,k,z,0);
 
         long execTime = System.currentTimeMillis() - startTime;
 
