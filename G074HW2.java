@@ -81,7 +81,7 @@ public class G074HW2 {
     public static double ComputeObjective(ArrayList<Vector> P, ArrayList<Vector> S, int z) {
         double result = -1;
         double aux = -1;
-        ArrayList<Double> distancesVector;
+        ArrayList<Double> distancesVector = new ArrayList<>();
         //compute a vector of distances of all point x in P to all points c in S, multiplied by weight vector
 
         System.out.println("Calculating objective function for the solution given by the centers: " + S);
@@ -91,24 +91,34 @@ public class G074HW2 {
             //compute all the distances (L2) from the point to every center c in S
             ArrayList<Double> distancesFromCenters = new ArrayList<>();
 
-            /*
-            for(Vector c: S){
-                //aux = Math.sqrt(Vectors.sqdist(point,c)); //L2 distance
-                System.out.println("eccomi");
-                //System.out.println("Distance from point " + point + " to center " + c + " is: " + aux);
-                //distancesFromCenters.add(aux); //add the L2 distance of point to c to the vector
-            }*/
-            //take only the minimum (which is the definition of d(point,S))
 
+            for(Vector c: S){
+                aux = Math.sqrt(Vectors.sqdist(point,c)); //L2 distance
+                System.out.println("Distance from point " + point + " to center " + c + " is: " + aux);
+                distancesFromCenters.add(aux); //add the L2 distance of point to c to the vector
+            }
+            //take only the minimum (which is the definition of d(point,S))
+            double distanceFromS = Collections.min(distancesFromCenters);
+            System.out.println("Distance from S is: "+ distanceFromS);
             //add the result to the distances Vector
+            distancesVector.add(distanceFromS);
 
         }
-        //sort the distances vector in an ascending way
 
-        //exclude the z last elements in the sorted vector
+        System.out.println("\n\ndistancesVector size: " + distancesVector.size() + " and content is:\n" + distancesVector);
+        //sort the distances vector in an ascending way
+        distancesVector.sort((d1,d2) -> Double.compare(d1,d2));
+        System.out.println("\n\ndistancesVector SORTED:\n" + distancesVector);
+
+        //exclude the last z elements in the sorted vector
+        for(int i=0;i<z;i++){
+            distancesVector.remove(distancesVector.size()-1);
+        }
+
+        System.out.println("\n\ndistancesVector WITH LAST " + z + " ELEMENTS REMOVED:\n" + distancesVector);
 
         //take the last element (which will represent the value of the objective function)
-
+        result = distancesVector.get(distancesVector.size()-1);
 
         return result;
     }
