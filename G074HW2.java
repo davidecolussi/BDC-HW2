@@ -44,7 +44,83 @@ public class G074HW2 {
      * @param alpha coefficient used by the algorithm
      * @return a solution of the K-center with z outliers problem
      */
-    public  static ArrayList<Vector> SeqWeightedOutliers(ArrayList<Vector> P, ArrayList<Long> W, int k, int z, int alpha) {
+    public static ArrayList<Vector> SeqWeightedOutliers(ArrayList<Vector> P, ArrayList<Long> W, int k, int z, int alpha) {
+
+        double minDist = Math.sqrt(Vectors.sqdist(P.get(0), P.get(1))); // set the distance
+        //calculate minDistance from the firt k+z+1 point
+        for(int i = 0; i <(k+z+1); i++){
+            for (int j = 0; j<(k+z+1); j++){
+                if(true) {
+                    double dist = Math.sqrt(Vectors.sqdist(P.get(i),P.get(j)));
+                    if(dist<minDist){
+                        minDist = dist;
+                    }
+                }
+            }
+        }
+        double r = (minDist)/2;
+
+        while(true){
+            ArrayList<Vector> Z = P;
+            ArrayList<Vector> S = new ArrayList<>();
+            double Wz = 0; // Calculate the sum of all weight
+            for (double w: W) {
+                Wz = Wz + w;
+            }
+
+            while(( S.size() < k )&&( Wz > 0)){
+                double max = 0;
+                Vector newCenter = null;
+                for( int i = 0; i<P.size(); i++){
+
+                    ArrayList<Vector> ball = new ArrayList<>();
+                    double ballWeight = 0;
+                    for( int j = 0; j< P.size(); j++){
+                        if(i!=j){
+                            double dist = Math.sqrt(Vectors.sqdist(P.get(i), P.get(j)));
+                            if(dist<(1+2*alpha)*r){
+                                ball.add(P.get(j));
+                                ballWeight += W.get(j);
+                            }
+                        }
+
+                    }
+
+                    if(ballWeight > max){
+                        max = ballWeight;
+                        newCenter = P.get(i);
+                    }
+                }
+
+
+                if(newCenter != null) {
+                    S.add(newCenter);
+                    ArrayList<Vector> Bz = new ArrayList<>();
+                    for (int j = 0; j < P.size(); j++) {
+
+                        double dist = Math.sqrt(Vectors.sqdist(P.get(j), newCenter));
+                        if (dist < (3 + 4 * alpha) * r) {
+                            Z.remove(P.get(j));
+                            Wz -= W.get(j);
+                        }
+                    }
+                }
+
+            }
+            if(Wz < z){
+                System.out.println(S.toArray());
+                return S;
+            }else {
+                r = 2*r;
+            }
+
+        }
+
+
+
+
+/*
+
         System.out.println(P);
         //todo
         //dummy example
@@ -68,6 +144,8 @@ public class G074HW2 {
         dummyCenter = Vectors.dense(dummyCenters3);
         dummySolution.add(dummyCenter);
         return dummySolution;
+
+        */
     }
 
     /**
