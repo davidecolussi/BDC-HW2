@@ -84,10 +84,9 @@ public class G074HW2 {
 
 
         ArrayList<Vector> Z = new ArrayList<>();
+        ArrayList<Vector> S;
         double max = 0, dist, r=-1, Wz, ballWeight;
-        Vector newCenter, y;
-        ArrayList<Vector> Bz = new ArrayList<>();
-
+        Vector newCenter = null, y;
 
         System.out.println("Calculating r as the min distance between the first k+z+1="+(k+z+1)+" points");
         double minDist = Math.sqrt(Vectors.sqdist(P.get(0), P.get(1))); // set the distance
@@ -114,28 +113,27 @@ public class G074HW2 {
                 System.out.println("copying " + originalPoint + "from P into Z");
                 Z.add(originalPoint);
             }
-            ArrayList<Vector> S = new ArrayList<>();
-            Wz = 0; // Calculate the sum of all the weight vector's weights
-            for (double w : W) {
+
+            S = new ArrayList<>(); //clear S
+            Wz = 0;
+            for (double w : W) { // Calculate the sum of all the weight vector's weights
                 System.out.println("summing to Wz the weight: " + w);
                 Wz = Wz + w;
             }
             System.out.println("\nFinal Wz = " + Wz);
 
+
             while ((S.size() < k) && (Wz > 0)) {
                 System.out.println("inner while [|S|=" + S.size() + ", Wz=" + Wz + "]");
                 max = 0;
-                newCenter = null;
+                newCenter = null; //todo: remove line
 
-                //now we have to compute the sum of all the weights of the points which are in the ball Bz
-
-                //new code:
-
+                //We have to compute the sum of all the weights of the points which are in the ball Bz(x,(1+2a)r)
                 for (Vector x : P) { //for each point x in P (ball center)
                     System.out.println("Considering point of P x: " + x);
                     ballWeight = 0;
                     //calculate ballWeight by summing all weights of the points in the ball Bz with center x and radius (1+2a)r.
-                    //a point y nof the set Z is considered in the ball Bz if his distance from the ball center x is less or equal than (1+2a)r
+                    //a point y nof the set Z is considered in the ball Bz if its distance from the ball center x is less or equal than (1+2a)r
                     for (int i = 0; i < Z.size(); i++) { //for each point y in Z
                         y = Z.get(i);
                         System.out.println("considering point of Z y: " + y);
@@ -143,7 +141,7 @@ public class G074HW2 {
                         System.out.println("calculated distance of x to y " + dist);
 
                         if (dist <= (1 + 2 * alpha) * r) { //check if the point y is in the ball Bz(x,(1+2a)r)
-                            Bz.add(y); //add y to the ball
+                            //y is in the ball
                             System.out.println("The point y is in the ball. Adding its weight (" + W.get(i) + ")to the partial ballWeight sum");
                             ballWeight += W.get(i); //sum up the weight of y
                         }
@@ -153,15 +151,23 @@ public class G074HW2 {
                     if (ballWeight > max) { //if i found a bigger ballWaight than the max found until now
                         max = ballWeight; //update max with current ballWeight
                         newCenter = x; //update newCenter with current x
+                        System.out.println("*****NEW CENTER FOUND: " + newCenter + "******");
                     }
+
                 }//end of for each point x in P
 
+
+
                 if (newCenter != null) {
-                    S.add(newCenter); //add the newCenter found into the solution set S
+                    //todo: comment all this IF body for debugging
+                    /*
+                    S.add(newCenter); //add the newCenter found into the solution set S //todo: this line gives ERROR in run
+
                     System.out.println("*Adding newCenter (" + newCenter + ") to S\nCreating the ball Bz with center newCenter and radius (3+4a)r");
 
                     //find a new ball Bz with center "newCenter" and radius (3+4a)r.
                     //a point y of the set Z is considered in the ball Bz if his distance from the ball center "newCenter" is less or equal than (3+4a)r
+
                     for (int i = 0; i < Z.size(); i++) { //for each point y in Z
                         y = Z.get(i);
                         System.out.println("considering point of Z y: " + y);
@@ -176,18 +182,21 @@ public class G074HW2 {
                         }
                     }//end of for each point y in Z
 
+
                     if (Wz <= z) {
                         System.out.println("end of the algorithm, returning: " + S);
                         return S;
                     } else {
                         r = 2 * r;
                     }
+                    //todo: comment all the IF body until here for debugging
+                     */
 
                 }//end of if(newCenter!=null)
             }//end of inner while
         }//end of outer while
 
-        
+
     }
 
     /**
