@@ -137,7 +137,15 @@ public class G074HW3
 	// ****** Return the final solution
         //
 
-      return null;
+      ArrayList<Vector> P = new ArrayList<>();
+      ArrayList<Long> W = new ArrayList<>();
+
+      for (Tuple2<Vector,Long> elem : elems) {
+          P.add(elem._1);
+          W.add(elem._2);
+      }
+
+      return SeqWeightedOutliers(P,W,k,z,2);
   }
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
