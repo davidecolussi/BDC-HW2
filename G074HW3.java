@@ -2,16 +2,18 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaDoubleRDD;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.mllib.linalg.BLAS;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.Vectors;
+import org.codehaus.janino.Java;
+import scala.Array;
 import scala.Tuple2;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 
 public class G074HW3
 {
@@ -60,16 +62,21 @@ public class G074HW3
       System.out.println("Number of points N = " + N);
       System.out.println("Number of centers k = " + k);
       System.out.println("Number of outliers z = " + z);
+
       System.out.println("Number of partitions L = " + L);
       System.out.println("Time to read from file: " + (end-start) + " ms");
 
       // ---- Solve the problem
       ArrayList<Vector> solution = MR_kCenterOutliers(inputPoints, k, z, L);
 
+
       // ---- Compute the value of the objective function
       start = System.currentTimeMillis();
       double objective = computeObjective(inputPoints, solution, z);
       end = System.currentTimeMillis();
+      System.out.println("Initial guess = "+ initialGuess);
+      System.out.println("Final guess = " + finalGuess);
+      System.out.println("Number of guesses = "+ guess);
       System.out.println("Objective function = " + objective);
       System.out.println("Time to compute objective function: " + (end-start) + " ms");
 
@@ -108,6 +115,8 @@ public class G074HW3
 
   public static ArrayList<Vector> MR_kCenterOutliers (JavaRDD<Vector> points, int k, int z, int L)
   {
+        long start, end;
+        start = System.currentTimeMillis();
 
         //------------- ROUND 1 ---------------------------
 
@@ -125,16 +134,22 @@ public class G074HW3
             }
             return c_w.iterator();
         }); // END OF ROUND 1
+      end = System.currentTimeMillis();
 
-        //------------- ROUND 2 ---------------------------
+      System.out.println("Time Round 1: "+ (end-start) + " ms");
+
+
+      start = System.currentTimeMillis();
+
+      //------------- ROUND 2 ---------------------------
 
         ArrayList<Tuple2<Vector, Long>> elems = new ArrayList<>((k+z)*L);
         elems.addAll(coreset.collect());
         //
         // ****** ADD YOUR CODE
         // ****** Compute the final solution (run SeqWeightedOutliers with alpha=2)
-	// ****** Measure and print times taken by Round 1 and Round 2, separately
-	// ****** Return the final solution
+        // ****** Measure and print times taken by Round 1 and Round 2, separately
+        // ****** Return the final solution
         //
 
       ArrayList<Vector> P = new ArrayList<>();
@@ -145,7 +160,12 @@ public class G074HW3
           W.add(elem._2);
       }
 
-      return SeqWeightedOutliers(P,W,k,z,2);
+      ArrayList<Vector> S = SeqWeightedOutliers(P,W,k,z,2);
+
+      end = System.currentTimeMillis();
+      System.out.println("Time Round 2: "+ (end-start) + " ms");
+
+      return S;
   }
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -248,9 +268,6 @@ public class G074HW3
         }
         r = (minDist)/2;
 
-
-
-
         initialGuess = r;
         finalGuess = r;
 
@@ -335,15 +352,38 @@ public class G074HW3
 // Method computeObjective: computes objective function  
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-  public static double computeObjective (JavaRDD<Vector> points, ArrayList<Vector> centers, int z)
+  public static double computeObjective(JavaRDD<Vector> points, ArrayList<Vector> centers, int z)
   {
 
     //
     // ****** ADD THE CODE FOR computeObjective
-    // 
+    //
 
-      return 0;
-      
+      List<Tuple2<Double,Integer>> distances = points.mapPartitionsToPair(element -> {
+          ArrayList<Tuple2<Double,Integer>> distancesList = new ArrayList<>();
+          ArrayList<Double> localDistancesList = new ArrayList<>();
+          while(element.hasNext()) {
+              Vector point = element.next();
+              for(Vector center : centers) {
+                  localDistancesList.add(euclidean(point,center));
+              }
+
+              double minDistance = Collections.min(localDistancesList);
+
+              distancesList.add(new Tuple2<>(minDistance,0));
+          }
+        return distancesList.iterator();
+
+      }).sortByKey(true).repartition(1).collect();
+
+      ArrayList<Tuple2<Double,Integer>>  distancesList = new ArrayList<>(distances);
+
+      for(int i=0;i<z;i++){
+          distancesList.remove(distancesList.size()-1);
+      }
+
+      double result = distancesList.get(distancesList.size()-1)._1;
+
+      return result;
   }
-
 }
