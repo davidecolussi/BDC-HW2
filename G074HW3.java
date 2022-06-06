@@ -1,3 +1,4 @@
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
@@ -359,31 +360,25 @@ public class G074HW3
     // ****** ADD THE CODE FOR computeObjective
     //
 
-      List<Tuple2<Double,Integer>> distances = points.mapPartitionsToPair(element -> {
-          ArrayList<Tuple2<Double,Integer>> distancesList = new ArrayList<>();
-          ArrayList<Double> localDistancesList = new ArrayList<>();
+      JavaRDD<Double> distances = points.mapPartitionsToPair(element -> {
+          ArrayList <Tuple2<Vector,ArrayList<Double>>> distancesList = new ArrayList<>();
           while(element.hasNext()) {
+              ArrayList<Double> localDistancesList = new ArrayList<>();
               Vector point = element.next();
               for(Vector center : centers) {
                   localDistancesList.add(euclidean(point,center));
               }
-
-              double minDistance = Collections.min(localDistancesList);
-
-              distancesList.add(new Tuple2<>(minDistance,0));
+              distancesList.add(new Tuple2<>(point,localDistancesList));
           }
-        return distancesList.iterator();
+          return distancesList.iterator();
+      }).groupByKey().mapToPair(element -> {
+          double minDistance = Collections.min(element._2.iterator().next());
+          return new Tuple2<>(minDistance,element._1);
+      }).sortByKey(false).map(element -> element._1);
 
-      }).sortByKey(true).repartition(1).collect();
 
-      ArrayList<Tuple2<Double,Integer>>  distancesList = new ArrayList<>(distances);
+    List<Double> first_distances = distances.take(z+1);
 
-      for(int i=0;i<z;i++){
-          distancesList.remove(distancesList.size()-1);
-      }
-
-      double result = distancesList.get(distancesList.size()-1)._1;
-
-      return result;
+    return first_distances.get(first_distances.size()-1);
   }
 }
