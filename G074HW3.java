@@ -360,25 +360,22 @@ public class G074HW3
     // ****** ADD THE CODE FOR computeObjective
     //
 
-      JavaRDD<Double> distances = points.mapPartitionsToPair(element -> {
-          ArrayList <Tuple2<Double,Vector>> distancesList = new ArrayList<>();
+      List <Double> highestDistances = points.mapPartitions(element -> {
+          ArrayList <Double> distancesList = new ArrayList<>();
           while(element.hasNext()) {
               Vector point = element.next();
+              Double min = null;
               for(Vector center : centers) {
-                  distancesList.add(new Tuple2<>(euclidean(center,point),point));
+                  double distance = euclidean(center,point);
+                  if(min == null || distance<min)
+                      min = distance;
+
               }
+              distancesList.add(min);
           }
           return distancesList.iterator();
-      }).sortByKey(true)
-              .mapToPair(element -> new Tuple2<>(element._2,element._1))
-              .groupByKey()
-              .mapValues(element-> element.iterator().next())
-              .mapToPair(element -> new Tuple2<>(element._2,element._1))
-              .sortByKey(false)
-              .map(element -> element._1);
+      }).top(z+1);
 
-
-    List<Double> first_distances = distances.take(z+1);
-    return first_distances.get(first_distances.size()-1);
+    return highestDistances.get(highestDistances.size()-1);
   }
 }
