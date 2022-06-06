@@ -25,63 +25,63 @@ public class G074HW3
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// MAIN PROGRAM 
+// MAIN PROGRAM
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-  public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-      if (args.length != 4) {
-          throw new IllegalArgumentException("USAGE: filepath k z L");
-      }
+        if (args.length != 4) {
+            throw new IllegalArgumentException("USAGE: filepath k z L");
+        }
 
-      // ----- Initialize variables 
-      String filename = args[0];
-      int k = Integer.parseInt(args[1]);
-      int z = Integer.parseInt(args[2]);
-      int L = Integer.parseInt(args[3]);
-      long start, end; // variables for time measurements
+        // ----- Initialize variables
+        String filename = args[0];
+        int k = Integer.parseInt(args[1]);
+        int z = Integer.parseInt(args[2]);
+        int L = Integer.parseInt(args[3]);
+        long start, end; // variables for time measurements
 
-      // ----- Set Spark Configuration
-      Logger.getLogger("org").setLevel(Level.OFF);
-      Logger.getLogger("akka").setLevel(Level.OFF);
-      SparkConf conf = new SparkConf(true).setAppName("MR k-center with outliers");
-      JavaSparkContext sc = new JavaSparkContext(conf);
-      sc.setLogLevel("WARN");
+        // ----- Set Spark Configuration
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+        SparkConf conf = new SparkConf(true).setAppName("MR k-center with outliers");
+        JavaSparkContext sc = new JavaSparkContext(conf);
+        sc.setLogLevel("WARN");
 
-      // ----- Read points from file
-      start = System.currentTimeMillis();
-      JavaRDD<Vector> inputPoints = sc.textFile(args[0], L)
-              .map(x-> strToVector(x))
-              .repartition(L)
-              .cache();
-      long N = inputPoints.count();
-      end = System.currentTimeMillis();
+        // ----- Read points from file
+        start = System.currentTimeMillis();
+        JavaRDD<Vector> inputPoints = sc.textFile(args[0], L)
+                .map(x-> strToVector(x))
+                .repartition(L)
+                .cache();
+        long N = inputPoints.count();
+        end = System.currentTimeMillis();
 
-      // ----- Pring input parameters
-      System.out.println("File : " + filename);
-      System.out.println("Number of points N = " + N);
-      System.out.println("Number of centers k = " + k);
-      System.out.println("Number of outliers z = " + z);
+        // ----- Pring input parameters
+        System.out.println("File : " + filename);
+        System.out.println("Number of points N = " + N);
+        System.out.println("Number of centers k = " + k);
+        System.out.println("Number of outliers z = " + z);
 
-      System.out.println("Number of partitions L = " + L);
-      System.out.println("Time to read from file: " + (end-start) + " ms");
+        System.out.println("Number of partitions L = " + L);
+        System.out.println("Time to read from file: " + (end-start) + " ms");
 
-      // ---- Solve the problem
-      ArrayList<Vector> solution = MR_kCenterOutliers(inputPoints, k, z, L);
+        // ---- Solve the problem
+        ArrayList<Vector> solution = MR_kCenterOutliers(inputPoints, k, z, L);
 
 
-      // ---- Compute the value of the objective function
-      start = System.currentTimeMillis();
-      double objective = computeObjective(inputPoints, solution, z, sc);
-      end = System.currentTimeMillis();
-      System.out.println("Initial guess = "+ initialGuess);
-      System.out.println("Final guess = " + finalGuess);
-      System.out.println("Number of guesses = "+ guess);
-      System.out.println("Objective function = " + objective);
-      System.out.println("Time to compute objective function: " + (end-start) + " ms");
+        // ---- Compute the value of the objective function
+        start = System.currentTimeMillis();
+        double objective = computeObjective(inputPoints, solution, z, sc);
+        end = System.currentTimeMillis();
+        System.out.println("Initial guess = "+ initialGuess);
+        System.out.println("Final guess = " + finalGuess);
+        System.out.println("Number of guesses = "+ guess);
+        System.out.println("Objective function = " + objective);
+        System.out.println("Time to compute objective function: " + (end-start) + " ms");
 
-  }
+    }
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -93,14 +93,14 @@ public class G074HW3
 // Method strToVector: input reading
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-  public static Vector strToVector(String str) {
-      String[] tokens = str.split(",");
-      double[] data = new double[tokens.length];
-      for (int i=0; i<tokens.length; i++) {
-        data[i] = Double.parseDouble(tokens[i]);
-      }
-      return Vectors.dense(data);
-  }
+    public static Vector strToVector(String str) {
+        String[] tokens = str.split(",");
+        double[] data = new double[tokens.length];
+        for (int i=0; i<tokens.length; i++) {
+            data[i] = Double.parseDouble(tokens[i]);
+        }
+        return Vectors.dense(data);
+    }
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // Method euclidean: distance function
@@ -111,11 +111,11 @@ public class G074HW3
     }
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// Method MR_kCenterOutliers: MR algorithm for k-center with outliers 
+// Method MR_kCenterOutliers: MR algorithm for k-center with outliers
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-  public static ArrayList<Vector> MR_kCenterOutliers (JavaRDD<Vector> points, int k, int z, int L)
-  {
+    public static ArrayList<Vector> MR_kCenterOutliers (JavaRDD<Vector> points, int k, int z, int L)
+    {
         long start, end;
         start = System.currentTimeMillis();
 
@@ -135,17 +135,19 @@ public class G074HW3
             }
             return c_w.iterator();
         }); // END OF ROUND 1
-      end = System.currentTimeMillis();
-
-      System.out.println("Time Round 1: "+ (end-start) + " ms");
 
 
-      start = System.currentTimeMillis();
-
-      //------------- ROUND 2 ---------------------------
+        //------------- ROUND 2 ---------------------------
 
         ArrayList<Tuple2<Vector, Long>> elems = new ArrayList<>((k+z)*L);
         elems.addAll(coreset.collect());
+
+        end = System.currentTimeMillis();
+
+        System.out.println("Time Round 1: "+ (end-start) + " ms");
+
+
+        start = System.currentTimeMillis();
         //
         // ****** ADD YOUR CODE
         // ****** Compute the final solution (run SeqWeightedOutliers with alpha=2)
@@ -153,59 +155,59 @@ public class G074HW3
         // ****** Return the final solution
         //
 
-      ArrayList<Vector> P = new ArrayList<>();
-      ArrayList<Long> W = new ArrayList<>();
+        ArrayList<Vector> P = new ArrayList<>();
+        ArrayList<Long> W = new ArrayList<>();
 
-      for (Tuple2<Vector,Long> elem : elems) {
-          P.add(elem._1);
-          W.add(elem._2);
-      }
+        for (Tuple2<Vector,Long> elem : elems) {
+            P.add(elem._1);
+            W.add(elem._2);
+        }
 
-      ArrayList<Vector> S = SeqWeightedOutliers(P,W,k,z,2);
+        ArrayList<Vector> S = SeqWeightedOutliers(P,W,k,z,2);
 
-      end = System.currentTimeMillis();
-      System.out.println("Time Round 2: "+ (end-start) + " ms");
+        end = System.currentTimeMillis();
+        System.out.println("Time Round 2: "+ (end-start) + " ms");
 
-      return S;
-  }
+        return S;
+    }
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // Method kCenterFFT: Farthest-First Traversal
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-  public static ArrayList<Vector> kCenterFFT (ArrayList<Vector> points, int k) {
+    public static ArrayList<Vector> kCenterFFT (ArrayList<Vector> points, int k) {
 
-    final int n = points.size();
-    double[] minDistances = new double[n];
-    Arrays.fill(minDistances, Double.POSITIVE_INFINITY);
+        final int n = points.size();
+        double[] minDistances = new double[n];
+        Arrays.fill(minDistances, Double.POSITIVE_INFINITY);
 
-    ArrayList<Vector> centers = new ArrayList<>(k);
+        ArrayList<Vector> centers = new ArrayList<>(k);
 
-    Vector lastCenter = points.get(0);
-    centers.add(lastCenter);
-    double radius =0;
+        Vector lastCenter = points.get(0);
+        centers.add(lastCenter);
+        double radius =0;
 
-    for (int iter=1; iter<k; iter++) {
-      int maxIdx = 0;
-      double maxDist = 0;
+        for (int iter=1; iter<k; iter++) {
+            int maxIdx = 0;
+            double maxDist = 0;
 
-      for (int i = 0; i < n; i++) {
-        double d = euclidean(points.get(i), lastCenter);
-        if (d < minDistances[i]) {
-            minDistances[i] = d;
+            for (int i = 0; i < n; i++) {
+                double d = euclidean(points.get(i), lastCenter);
+                if (d < minDistances[i]) {
+                    minDistances[i] = d;
+                }
+
+                if (minDistances[i] > maxDist) {
+                    maxDist = minDistances[i];
+                    maxIdx = i;
+                }
+            }
+
+            lastCenter = points.get(maxIdx);
+            centers.add(lastCenter);
         }
-
-        if (minDistances[i] > maxDist) {
-            maxDist = minDistances[i];
-            maxIdx = i;
-        }
-      }
-
-      lastCenter = points.get(maxIdx);
-      centers.add(lastCenter);
+        return centers;
     }
-    return centers;
-}
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // Method computeWeights: compute weights of coreset points
@@ -348,34 +350,34 @@ public class G074HW3
         }//end of outer while
     }
 
-      
+
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// Method computeObjective: computes objective function  
+// Method computeObjective: computes objective function
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-  public static double computeObjective(JavaRDD<Vector> points, ArrayList<Vector> centers, int z, JavaSparkContext sc)
-  {
+    public static double computeObjective(JavaRDD<Vector> points, ArrayList<Vector> centers, int z, JavaSparkContext sc)
+    {
 
-    //
-    // ****** ADD THE CODE FOR computeObjective
-    //
+        //
+        // ****** ADD THE CODE FOR computeObjective
+        //
 
-      List <Double> highestDistances = points.mapPartitions(element -> {
-          ArrayList <Double> distancesList = new ArrayList<>();
-          while(element.hasNext()) {
-              Vector point = element.next();
-              Double min = null;
-              for(Vector center : centers) {
-                  double distance = euclidean(center,point);
-                  if(min == null || distance<min)
-                      min = distance;
+        List <Double> highestDistances = points.mapPartitions(element -> {
+            ArrayList <Double> distancesList = new ArrayList<>();
+            while(element.hasNext()) {
+                Vector point = element.next();
+                Double min = null;
+                for(Vector center : centers) {
+                    double distance = euclidean(center,point);
+                    if(min == null || distance<min)
+                        min = distance;
 
-              }
-              distancesList.add(min);
-          }
-          return distancesList.iterator();
-      }).top(z+1);
+                }
+                distancesList.add(min);
+            }
+            return distancesList.iterator();
+        }).top(z+1);
 
-    return highestDistances.get(highestDistances.size()-1);
-  }
+        return highestDistances.get(highestDistances.size()-1);
+    }
 }
