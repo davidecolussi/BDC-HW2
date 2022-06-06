@@ -73,7 +73,7 @@ public class G074HW3
 
       // ---- Compute the value of the objective function
       start = System.currentTimeMillis();
-      double objective = computeObjective(inputPoints, solution, z);
+      double objective = computeObjective(inputPoints, solution, z, sc);
       end = System.currentTimeMillis();
       System.out.println("Initial guess = "+ initialGuess);
       System.out.println("Final guess = " + finalGuess);
@@ -353,7 +353,7 @@ public class G074HW3
 // Method computeObjective: computes objective function  
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-  public static double computeObjective(JavaRDD<Vector> points, ArrayList<Vector> centers, int z)
+  public static double computeObjective(JavaRDD<Vector> points, ArrayList<Vector> centers, int z, JavaSparkContext sc)
   {
 
     //
@@ -361,24 +361,24 @@ public class G074HW3
     //
 
       JavaRDD<Double> distances = points.mapPartitionsToPair(element -> {
-          ArrayList <Tuple2<Vector,ArrayList<Double>>> distancesList = new ArrayList<>();
+          ArrayList <Tuple2<Double,Vector>> distancesList = new ArrayList<>();
           while(element.hasNext()) {
-              ArrayList<Double> localDistancesList = new ArrayList<>();
               Vector point = element.next();
               for(Vector center : centers) {
-                  localDistancesList.add(euclidean(point,center));
+                  distancesList.add(new Tuple2<>(euclidean(center,point),point));
               }
-              distancesList.add(new Tuple2<>(point,localDistancesList));
           }
           return distancesList.iterator();
-      }).groupByKey().mapToPair(element -> {
-          double minDistance = Collections.min(element._2.iterator().next());
-          return new Tuple2<>(minDistance,element._1);
-      }).sortByKey(false).map(element -> element._1);
+      }).sortByKey(true)
+              .mapToPair(element -> new Tuple2<>(element._2,element._1))
+              .groupByKey()
+              .mapValues(element-> element.iterator().next())
+              .mapToPair(element -> new Tuple2<>(element._2,element._1))
+              .sortByKey(false)
+              .map(element -> element._1);
 
 
     List<Double> first_distances = distances.take(z+1);
-
     return first_distances.get(first_distances.size()-1);
   }
 }
