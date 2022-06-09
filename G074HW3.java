@@ -163,7 +163,7 @@ public class G074HW3
             W.add(elem._2);
         }
 
-        ArrayList<Vector> S = SeqWeightedOutliers(P,W,k,z,2);
+        ArrayList<Vector> S = SeqWeightedOutliers1(P,W,k,z,2);
 
         end = System.currentTimeMillis();
         System.out.println("Time Round 2: "+ (end-start) + " ms");
@@ -249,7 +249,7 @@ public class G074HW3
      * @param alpha coefficient used by the algorithm
      * @return a solution of the K-center with z outliers problem
      */
-    public static ArrayList<Vector> SeqWeightedOutliers(ArrayList<Vector> P, ArrayList<Long> W, int k, int z, int alpha) {
+    public static ArrayList<Vector> SeqWeightedOutliers1(ArrayList<Vector> P, ArrayList<Long> W, int k, int z, int alpha) {
 
 
         ArrayList<Vector> Z = new ArrayList<>();
@@ -361,6 +361,118 @@ public class G074HW3
         }//end of outer while
     }
 
+
+    public static ArrayList<Vector> SeqWeightedOutliers2(ArrayList<Vector> P, ArrayList<Long> W, int k, int z, int alpha) {
+
+
+
+        ArrayList<Integer> indexs = new ArrayList<>();
+        ArrayList<Vector> S;
+        double max = 0, dist, r=-1, Wz, ballWeight;
+        Vector newCenter = null, y;
+
+        double minDist = Math.sqrt(Vectors.sqdist(P.get(0), P.get(1))); // set the distance
+        //calculate minDistance from the firt k+z+1 point
+        for(int i = 0; i <(k+z+1); i++){
+            for (int j = 0; j<(k+z+1); j++){
+                if(i!=j){ //they must not be the same point
+                    dist = Math.sqrt(Vectors.sqdist(P.get(i),P.get(j)));
+                    if(dist<minDist){
+                        minDist = dist;
+                    }
+                }
+            }
+        }
+        r = (minDist)/2;
+
+
+
+
+        initialGuess = r;
+        finalGuess = r;
+
+        while(true) {
+
+            indexs = new ArrayList<>();
+
+            for(int i = 0; i<P.size(); i++){
+                indexs.add(i);
+            }
+
+            S = new ArrayList<>(); //clear S
+            Wz = 0;
+            for (double w : W) { // Calculate the sum of all the weight vector's weights
+                Wz = Wz + w;
+            }
+
+
+            while ((S.size() < k) && (Wz > 0)) {
+                max = 0;
+
+                //We have to compute the sum of all the weights of the points which are in the ball Bz(x,(1+2a)r)
+                for (Vector x : P) { //for each point x in P (ball center)
+                    ballWeight = 0;
+                    //calculate ballWeight by summing all weights of the points in the ball Bz with center x and radius (1+2a)r.
+                    //a point y nof the set Z is considered in the ball Bz if its distance from the ball center x is less or equal than (1+2a)r
+                    for (int i = 0; i < indexs.size(); i++) { //for each point y in Z
+                        y = P.get(indexs.get(i));
+                        dist = Math.sqrt(Vectors.sqdist(x, y));
+
+                        if (dist <= (1 + 2 * alpha) * r) { //check if the point y is in the ball Bz(x,(1+2a)r)
+                            //y is in the ball
+                            ballWeight += W.get(indexs.get(i)); //sum up the weight of y
+                        }
+                    }
+
+
+                    if (ballWeight > max) { //if i found a bigger ballWaight than the max found until now
+                        max = ballWeight; //update max with current ballWeight
+                        newCenter = x; //update newCenter with current x
+                    }
+
+
+                }//end of for each point x in P
+
+
+
+                if (newCenter != null) {
+
+
+                    S.add(newCenter); //add the newCenter found into the solution set S
+
+
+                    //find a new ball Bz with center "newCenter" and radius (3+4a)r.
+                    //a point y of the set Z is considered in the ball Bz if his distance from the ball center "newCenter" is less or equal than (3+4a)r
+
+                    for (int i = 0; i < indexs.size(); i++) { //for each point y in Z
+                        y = P.get(indexs.get(i));
+                        dist = Math.sqrt(Vectors.sqdist(newCenter, y));
+
+                        if ((dist <= (3 + 4 * alpha) * r)) { //check if the point y is in the ball Bz(newCenter,(1+2a)r)
+                            //remove y from Z
+
+                            Wz -= W.get(indexs.get(i));
+                            indexs.remove(i);
+                            i--;
+                        }
+                    }//end of for each point y in Z
+                }//end of if(newCenter!=null)
+
+
+            }//end of inner while
+            if (Wz <= z) {
+                return S;
+            } else {
+                r = 2 * r;
+                finalGuess = r;
+            }
+
+            guess++;
+
+        }//end of outer while
+
+
+    }
 
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // Method computeObjective: computes objective function
