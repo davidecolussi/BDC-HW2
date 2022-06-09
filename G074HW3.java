@@ -254,7 +254,8 @@ public class G074HW3
 
         ArrayList<Vector> Z = new ArrayList<>();
         ArrayList<Vector> S;
-        double max = 0, dist, r=-1, Wz, ballWeight;
+        double max = 0, dist, r=-1;
+        long Wz, ballWeight;
         Vector newCenter = null, y;
 
         double minDist = Math.sqrt(Vectors.sqdist(P.get(0), P.get(1))); // set the distance
@@ -282,7 +283,7 @@ public class G074HW3
 
             S = new ArrayList<>(); //clear S
             Wz = 0;
-            for (double w : W) { // Calculate the sum of all the weight vector's weights
+            for (long w : W) { // Calculate the sum of all the weight vector's weights
                 Wz = Wz + w;
             }
 
@@ -299,7 +300,7 @@ public class G074HW3
                         y = Z.get(i);
                         dist = Math.sqrt(Vectors.sqdist(x, y));
 
-                        if (dist <= (1 + 2 * alpha) * r) { //check if the point y is in the ball Bz(x,(1+2a)r)
+                        if (dist <= ((1 + (2 * alpha)) * r)) { //check if the point y is in the ball Bz(x,(1+2a)r)
                             //y is in the ball
                             ballWeight += W.get(i); //sum up the weight of y
                         }
@@ -329,7 +330,7 @@ public class G074HW3
                         y = Z.get(i);
                         dist = Math.sqrt(Vectors.sqdist(newCenter, y));
 
-                        if ((dist <= (3 + 4 * alpha) * r)) { //check if the point y is in the ball Bz(newCenter,(1+2a)r)
+                        if ((dist <= ((3 + (4 * alpha)) * r))) { //check if the point y is in the ball Bz(newCenter,(1+2a)r)
                             //remove y from Z
                             Z.remove(i);
                             Wz -= W.get(i);
