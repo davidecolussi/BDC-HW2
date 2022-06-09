@@ -276,7 +276,7 @@ public class G074HW3
         finalGuess = r;
 
         while(true) {
-            Z = new ArrayList<>();
+
             for (Vector originalPoint : P) { //deep copy of P into Z (notice that the reference of each originalPoint is copied)
                 Z.add(originalPoint);
             }
@@ -334,6 +334,7 @@ public class G074HW3
                             //remove y from Z
                             Z.remove(i);
                             Wz -= W.get(i);
+                            W.remove(i);
                             i--;
                         }
                     }//end of for each point y in Z
