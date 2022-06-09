@@ -253,6 +253,8 @@ public class G074HW3
 
 
         ArrayList<Vector> Z = new ArrayList<>();
+        ArrayList<Long> Weight = new ArrayList<>();
+
         ArrayList<Vector> S;
         double max = 0, dist, r=-1;
         long Wz, ballWeight;
@@ -277,14 +279,20 @@ public class G074HW3
 
         while(true) {
             Z = new ArrayList<>();
+            Weight = new ArrayList<>();
 
             for (Vector originalPoint : P) { //deep copy of P into Z (notice that the reference of each originalPoint is copied)
                 Z.add(originalPoint);
             }
 
+            for (long weight : W) { //deep copy of P into Z (notice that the reference of each originalPoint is copied)
+                Weight.add(weight);
+            }
+
+
             S = new ArrayList<>(); //clear S
             Wz = 0;
-            for (long w : W) { // Calculate the sum of all the weight vector's weights
+            for (long w : Weight) { // Calculate the sum of all the weight vector's weights
                 Wz = Wz + w;
             }
 
@@ -303,7 +311,7 @@ public class G074HW3
 
                         if (dist <= ((1 + (2 * alpha)) * r)) { //check if the point y is in the ball Bz(x,(1+2a)r)
                             //y is in the ball
-                            ballWeight += W.get(i); //sum up the weight of y
+                            ballWeight += Weight.get(i); //sum up the weight of y
                         }
                     }
 
@@ -334,8 +342,8 @@ public class G074HW3
                         if ((dist <= ((3 + (4 * alpha)) * r))) { //check if the point y is in the ball Bz(newCenter,(1+2a)r)
                             //remove y from Z
                             Z.remove(i);
-                            Wz -= W.get(i);
-                            W.remove(i);
+                            Wz -= Weight.get(i);
+                            Weight.remove(i);
                             i--;
                         }
                     }//end of for each point y in Z
